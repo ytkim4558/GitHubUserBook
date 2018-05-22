@@ -9,8 +9,6 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.bumptech.glide.Glide;
-
 import java.util.ArrayList;
 
 public class GitHubUserAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
@@ -25,10 +23,12 @@ public class GitHubUserAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
     public static class UserViewHolder extends RecyclerView.ViewHolder {
         ImageView userPictureIV;
         TextView userNameTV;
+        ImageView favoriteIV;
         UserViewHolder(View view) {
             super(view);
             userPictureIV = view.findViewById(R.id.iv_user_picture);
             userNameTV = view.findViewById(R.id.tv_user_name);
+            favoriteIV = view.findViewById(R.id.iv_favorite);
         }
     }
 
@@ -41,9 +41,15 @@ public class GitHubUserAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
 
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
-        UserViewHolder userViewHolder = (UserViewHolder) holder;
+        final UserViewHolder userViewHolder = (UserViewHolder) holder;
         GitHubUser gitHubUser = gitHubUserArrayList.get(position);
         GlideApp.with(context).load(gitHubUser.avatarURL).placeholder(R.drawable.ic_image_black_24dp).load(gitHubUser.avatarURL).into(userViewHolder.userPictureIV);
+        userViewHolder.favoriteIV.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                userViewHolder.favoriteIV.setImageResource(R.drawable.ic_favorite_black_24dp);
+            }
+        });
 
         userViewHolder.userNameTV.setText(gitHubUser.userID);
     }
