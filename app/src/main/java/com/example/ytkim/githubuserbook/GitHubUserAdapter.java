@@ -43,7 +43,7 @@ public class GitHubUserAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
         final UserViewHolder userViewHolder = (UserViewHolder) holder;
         GitHubUser gitHubUser = gitHubUserArrayList.get(position);
-        GlideApp.with(context).load(gitHubUser.avatarURL).placeholder(R.drawable.ic_image_black_24dp).load(gitHubUser.avatarURL).into(userViewHolder.userPictureIV);
+        GlideApp.with(context).load(gitHubUser.avatarURL).placeholder(R.drawable.ic_image_black_24dp).load(gitHubUser.avatarURL).thumbnail(0.1f).into(userViewHolder.userPictureIV);
         userViewHolder.favoriteIV.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
