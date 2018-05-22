@@ -64,7 +64,7 @@ public class MainActivity extends AppCompatActivity{
         mGitHubUserArrayList = new ArrayList<>();
 
 
-        gitHubUserAdapter = new GitHubUserAdapter(mGitHubUserArrayList);
+        gitHubUserAdapter = new GitHubUserAdapter(this, mGitHubUserArrayList);
 
         PreloadSizeProvider sizeProvider =
                 new FixedPreloadSizeProvider(profileImageWIdthPixels, profileImageHeightPixels);

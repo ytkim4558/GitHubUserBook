@@ -1,5 +1,6 @@
 package com.example.ytkim.githubuserbook;
 
+import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -8,12 +9,16 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
+
 import java.util.ArrayList;
 
 public class GitHubUserAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     private ArrayList<GitHubUser> gitHubUserArrayList;
-    GitHubUserAdapter(ArrayList<GitHubUser> gitHubUserArrayList) {
+    private Context context;
+    GitHubUserAdapter(Context context, ArrayList<GitHubUser> gitHubUserArrayList) {
+        this.context = context;
         this.gitHubUserArrayList = gitHubUserArrayList;
     }
 
@@ -37,9 +42,10 @@ public class GitHubUserAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
         UserViewHolder userViewHolder = (UserViewHolder) holder;
-//        userViewHolder.userPictureIV.setImageResource(gitHubUserArrayList.get(position).avatarURL);
+        GitHubUser gitHubUser = gitHubUserArrayList.get(position);
+        Glide.with(context).load(gitHubUser.avatarURL).into(userViewHolder.userPictureIV);
 
-        userViewHolder.userNameTV.setText(gitHubUserArrayList.get(position).userID);
+        userViewHolder.userNameTV.setText(gitHubUser.userID);
     }
 
     @Override
