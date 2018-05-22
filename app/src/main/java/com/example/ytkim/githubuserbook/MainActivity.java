@@ -1,12 +1,15 @@
 package com.example.ytkim.githubuserbook;
 
 import android.content.DialogInterface;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
 import android.widget.ImageView;
@@ -29,13 +32,17 @@ import org.json.JSONObject;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.ListPreloader.PreloadSizeProvider;
 import com.bumptech.glide.ListPreloader.PreloadModelProvider;
+import com.bumptech.glide.RequestBuilder;
 import com.bumptech.glide.integration.recyclerview.RecyclerViewPreloader;
 import com.bumptech.glide.util.FixedPreloadSizeProvider;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 import static java.security.AccessController.getContext;
 
+// https://developer.github.com/v3/search/#search-users
 public class MainActivity extends AppCompatActivity{
 
     private static final String TAG = MainActivity.class.getSimpleName();
@@ -43,6 +50,7 @@ public class MainActivity extends AppCompatActivity{
     public ArrayList<GitHubUser> mGitHubUserArrayList;
     RecyclerView mUserRecyclerView;
     RecyclerView.LayoutManager mLayoutManager;
+    GitHubUserAdapter gitHubUserAdapter;
     private final int profileImageWIdthPixels = 1024;
     private final int profileImageHeightPixels = 768;
 
@@ -54,20 +62,38 @@ public class MainActivity extends AppCompatActivity{
         initializeTab();
 
         mGitHubUserArrayList = new ArrayList<>();
-        mUserRecyclerView = findViewById(R.id.user_recyer_view);
-        mLayoutManager = new LinearLayoutManager(this);
-        mUserRecyclerView.setLayoutManager(mLayoutManager);
 
-        GitHubUserAdapter gitHubUserAdapter = new GitHubUserAdapter(mGitHubUserArrayList);
 
-        mUserRecyclerView.setAdapter(gitHubUserAdapter);
+        gitHubUserAdapter = new GitHubUserAdapter(mGitHubUserArrayList);
 
         PreloadSizeProvider sizeProvider =
                 new FixedPreloadSizeProvider(profileImageWIdthPixels, profileImageHeightPixels);
-//        PreloadModelProvider modelProvider = new GitHubUserPreloadModelProvider();
-//        RecyclerViewPreloader<ImageView> preloader = new RecyclerViewPreloader<ImageView>(Glide.with(this), modelProvider, sizeProvider, 10);
+        PreloadModelProvider modelProvider = new GitHubUserPreloadModelProvider();
+        RecyclerViewPreloader<ImageView> preloader = new RecyclerViewPreloader<ImageView>(Glide.with(this), modelProvider, sizeProvider, 10);
 
-//        RecyclerView myRecyclerView = (RecyclerView)
+        mUserRecyclerView = findViewById(R.id.user_recyer_view);
+        mUserRecyclerView.addOnScrollListener(preloader);
+
+        mLayoutManager = new LinearLayoutManager(this);
+        mUserRecyclerView.setLayoutManager(mLayoutManager);
+        mUserRecyclerView.setAdapter(gitHubUserAdapter);
+    }
+
+    private class GitHubUserPreloadModelProvider implements PreloadModelProvider {
+        @Override
+        @NonNull
+        public List<GitHubUser> getPreloadItems(int position) {
+            GitHubUser gitHubUser = mGitHubUserArrayList.get(position);
+
+            return Collections.singletonList(gitHubUser);
+        }
+
+        @Nullable
+        @Override
+        public RequestBuilder<?> getPreloadRequestBuilder(@NonNull Object item) {
+            GitHubUser gitHubUser = (GitHubUser) item;
+            return GlideApp.with(MainActivity.this).load(gitHubUser.avatarURL).override(profileImageWIdthPixels, profileImageHeightPixels);
+        }
     }
 
     void initializeTab() {
@@ -192,7 +218,7 @@ public class MainActivity extends AppCompatActivity{
                 jsonObject = userListJSONArray.getJSONObject(i);
                 gitHubUser = new GitHubUser();
                 gitHubUser.avatarURL = jsonObject.getString("avatar_url");
-                gitHubUser.userID = jsonObject.getString("userID");
+                gitHubUser.userID = jsonObject.getString("login");
                 gitHubUser.id = jsonObject.getInt("id");
             } catch (JSONException e) {
                 e.printStackTrace();
@@ -200,6 +226,7 @@ public class MainActivity extends AppCompatActivity{
             // gitHubUser 객체를 리스트에 삽입
             if (gitHubUser != null) {
                 mGitHubUserArrayList.add(gitHubUser);
+                gitHubUserAdapter.notifyItemInserted(mGitHubUserArrayList.size() - 1);
             }
         }
     }
