@@ -9,7 +9,6 @@ import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
-import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
 import android.widget.ImageView;
@@ -50,7 +49,7 @@ public class MainActivity extends AppCompatActivity{
     public ArrayList<GitHubUser> mGitHubUserArrayList;
     RecyclerView mUserRecyclerView;
     RecyclerView.LayoutManager mLayoutManager;
-    GitHubUserAdapter gitHubUserAdapter;
+    GitHubUserAdapter mGitHubUserAdapter;
     private final int profileImageWIdthPixels = 1024;
     private final int profileImageHeightPixels = 768;
 
@@ -64,7 +63,7 @@ public class MainActivity extends AppCompatActivity{
         mGitHubUserArrayList = new ArrayList<>();
 
 
-        gitHubUserAdapter = new GitHubUserAdapter(this, mGitHubUserArrayList);
+        mGitHubUserAdapter = new GitHubUserAdapter(this, mGitHubUserArrayList);
 
         PreloadSizeProvider sizeProvider =
                 new FixedPreloadSizeProvider(profileImageWIdthPixels, profileImageHeightPixels);
@@ -76,7 +75,7 @@ public class MainActivity extends AppCompatActivity{
 
         mLayoutManager = new LinearLayoutManager(this);
         mUserRecyclerView.setLayoutManager(mLayoutManager);
-        mUserRecyclerView.setAdapter(gitHubUserAdapter);
+        mUserRecyclerView.setAdapter(mGitHubUserAdapter);
     }
 
     private class GitHubUserPreloadModelProvider implements PreloadModelProvider {
@@ -130,6 +129,9 @@ public class MainActivity extends AppCompatActivity{
             @Override
             public boolean onQueryTextSubmit(String s) {
 //                Toast.makeText(getApplicationContext(), "검색을 완료했습니다.", Toast.LENGTH_SHORT).show();
+                final int size = mGitHubUserArrayList.size();
+                mGitHubUserArrayList.clear();
+                mGitHubUserAdapter.notifyItemRangeRemoved(0, size);
                 userSearchRequest(s);
                 return false;
             }
@@ -226,7 +228,7 @@ public class MainActivity extends AppCompatActivity{
             // gitHubUser 객체를 리스트에 삽입
             if (gitHubUser != null) {
                 mGitHubUserArrayList.add(gitHubUser);
-                gitHubUserAdapter.notifyItemInserted(mGitHubUserArrayList.size() - 1);
+                mGitHubUserAdapter.notifyItemInserted(mGitHubUserArrayList.size() - 1);
             }
         }
     }
