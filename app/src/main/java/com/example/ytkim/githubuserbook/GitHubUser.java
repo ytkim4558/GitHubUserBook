@@ -1,7 +1,7 @@
 package com.example.ytkim.githubuserbook;
 
-public class User {
+public class GitHubUser {
     String avatarURL;
     int id; // index?
-    String login; // id?
+    String userID; // id?
 }

@@ -4,13 +4,14 @@ import android.content.DialogInterface;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
 import android.util.Log;
 import android.view.Menu;
-import android.view.MenuItem;
+import android.widget.ImageView;
 import android.widget.TabHost;
 
-import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
@@ -25,38 +26,60 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.ListPreloader.PreloadSizeProvider;
+import com.bumptech.glide.ListPreloader.PreloadModelProvider;
+import com.bumptech.glide.integration.recyclerview.RecyclerViewPreloader;
+import com.bumptech.glide.util.FixedPreloadSizeProvider;
+
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 import static java.security.AccessController.getContext;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity{
 
     private static final String TAG = MainActivity.class.getSimpleName();
     TabHost tabHost;
-    public List<User> userList;
+    public ArrayList<GitHubUser> mGitHubUserArrayList;
+    RecyclerView mUserRecyclerView;
+    RecyclerView.LayoutManager mLayoutManager;
+    private final int profileImageWIdthPixels = 1024;
+    private final int profileImageHeightPixels = 768;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        userList = new ArrayList<>();
 
         initializeTab();
+
+        mGitHubUserArrayList = new ArrayList<>();
+        mUserRecyclerView = findViewById(R.id.user_recyer_view);
+        mLayoutManager = new LinearLayoutManager(this);
+        mUserRecyclerView.setLayoutManager(mLayoutManager);
+
+        GitHubUserAdapter gitHubUserAdapter = new GitHubUserAdapter(mGitHubUserArrayList);
+
+        mUserRecyclerView.setAdapter(gitHubUserAdapter);
+
+        PreloadSizeProvider sizeProvider =
+                new FixedPreloadSizeProvider(profileImageWIdthPixels, profileImageHeightPixels);
+//        PreloadModelProvider modelProvider = new GitHubUserPreloadModelProvider();
+//        RecyclerViewPreloader<ImageView> preloader = new RecyclerViewPreloader<ImageView>(Glide.with(this), modelProvider, sizeProvider, 10);
+
+//        RecyclerView myRecyclerView = (RecyclerView)
     }
 
     void initializeTab() {
         tabHost = (TabHost) findViewById(R.id.tabHost);
         tabHost.setup();
 
-        TabHost.TabSpec tab1 = tabHost.newTabSpec("1").setContent(R.id.tab1).setIndicator("User");
+        TabHost.TabSpec userTab = tabHost.newTabSpec("1").setContent(R.id.tab1).setIndicator("GitHubUser");
 
-        TabHost.TabSpec tab2 = tabHost.newTabSpec("2").setContent(R.id.tab2).setIndicator("Like User");
+        TabHost.TabSpec likeUserTab = tabHost.newTabSpec("2").setContent(R.id.tab2).setIndicator("Like GitHubUser");
 
-        tabHost.addTab(tab1);
-        tabHost.addTab(tab2);
+        tabHost.addTab(userTab);
+        tabHost.addTab(likeUserTab);
     }
 
     //타이틀바 맨 우측에 나타나는 버튼
@@ -162,21 +185,21 @@ public class MainActivity extends AppCompatActivity {
     void parseUserList(JSONArray userListJSONArray) {
         for (int i = 0; i < userListJSONArray.length(); ++i) {
             //유저 객체 생성
-            User user = null;
+            GitHubUser gitHubUser = null;
             JSONObject jsonObject = null;
             try {
                 // json 가져옴
                 jsonObject = userListJSONArray.getJSONObject(i);
-                user = new User();
-                user.avatarURL = jsonObject.getString("avatar_url");
-                user.login = jsonObject.getString("login");
-                user.id = jsonObject.getInt("id");
+                gitHubUser = new GitHubUser();
+                gitHubUser.avatarURL = jsonObject.getString("avatar_url");
+                gitHubUser.userID = jsonObject.getString("userID");
+                gitHubUser.id = jsonObject.getInt("id");
             } catch (JSONException e) {
                 e.printStackTrace();
             }
-            // user 객체를 리스트에 삽입
-            if (user != null) {
-                userList.add(user);
+            // gitHubUser 객체를 리스트에 삽입
+            if (gitHubUser != null) {
+                mGitHubUserArrayList.add(gitHubUser);
             }
         }
     }
